@@ -1,0 +1,12 @@
+path: mdpow/testing/testing_resources/stages
+
+solvation: 
+    files:
+        - [relpath/water.simulation, /tmp/rel_path/to/water.simulation]
+        - [relpath/runinput.yml, /tmp/rel_path/to/runinput.yml]
+    
+energy_minimization:
+    files:
+        - [relpath/water.simulation, /tmp/rel_path/to/water.simulation]
+        - [relpath/runinput.yml, /tmp/rel_path/to/runinput.yml]
+
