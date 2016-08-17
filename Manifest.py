@@ -17,10 +17,10 @@ class Manifest(object):
             self.src_path = raw.pop('path')
         except IOError:
             print('Cannot open', filename)
-            sys.exit(1)
+            raise FileNotFoundError
         except KeyError:
             print('No path provided. Check manifest file.')
-            sys.exit(1)
+            raise KeyError
 
         self._build_states(raw)
 
@@ -43,8 +43,6 @@ class Manifest(object):
         for key in data:
             self.states[key] = State(self.src_path, key, data[key])
 
-        self._check_broken_manifest()
-
     def _check_broken_manifest(self):
         self.broken = False
         for state in self.states:
@@ -52,7 +50,7 @@ class Manifest(object):
                 self.broken = True
                 print('State {} is broken.'.format(state))
         if self.broken:
-            sys.exit(1)
+            raise Exception
                 
                                                 
 class State(object):
