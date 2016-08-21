@@ -1,0 +1,5 @@
+path: manifest/tests/testing_files/testing_states
+
+recursion:
+    files:
+        - [random_1,'']
