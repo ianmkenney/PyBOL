@@ -2,9 +2,9 @@ path: manifest/tests/testing_files/testing_states
 
 state_a:
     files:
-        - [src/data/file_1.csv, ]
+        - [src/data/file_1.csv, data/file_1.csv]
     
 state_b:
     files:
-        - [src/data/file_2.csv, ]
+        - [src/data/file_2.csv, data/file_2.csv]
 

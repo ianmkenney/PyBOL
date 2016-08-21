@@ -46,3 +46,14 @@ class Test_Manifest_Files(object):
             m.assemble('recursion',self.dir)
         except:
             assert False
+
+    def test_regular_files(self):
+        try:
+            m = manifest.Manifest(os.path.join(self.manifests_path,'good_manifest.yml'))
+            m.assemble('state_a',self.dir)
+            m.assemble('state_b',self.dir)
+        except:
+            assert False
+
+    def _check_same(self, dir1, dir2):
+        raise NotImplementedError
