@@ -2,8 +2,8 @@ language: python
 sudo: false
 
 python:
-    - 2.7
-    - 3.4
+    - "2.7"
+    - "3.4"
 
 branches:
     only:
@@ -11,14 +11,32 @@ branches:
         - develop
 
 install:
-    - pip install pyyaml
+
+    - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      fi
+
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+
+    - export TESTING_ENV="manifest_test"
+    - conda create --yes -q -n $TESTING_ENV python=$TRAVIS_PYTHON_VERSION
+    - source activate $TESTING_ENV
+    - conda install --name $TESTING_ENV --file requirements.txt
 
     - pip install codecov
     - pip install pytest-cov
     - pip install pytest-pep8
+    - pip install -e .
 
 script:
-    - py.test --cov .
+    - py.test --cov manifest manifest/tests
 
 after_success:
     - codecov
