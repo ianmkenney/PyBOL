@@ -2,8 +2,8 @@ language: python
 sudo: false
 
 python:
-    - 2.7
-    - 3.4
+    - "2.7"
+    - "3.4"
 
 branches:
     only:
@@ -33,10 +33,10 @@ install:
     - pip install codecov
     - pip install pytest-cov
     - pip install pytest-pep8
-    - pip install .
+    - pip install -e .
 
 script:
-    - py.test --cov .
+    - py.test --cov manifest manifest/tests
 
 after_success:
     - codecov
