@@ -1,0 +1,9 @@
+path: testing_files/testing_states
+
+state_a:
+    options:
+    
+state_b:
+    files:
+        - [src/data/file_2.csv, ]
+

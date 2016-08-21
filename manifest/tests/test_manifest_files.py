@@ -25,3 +25,17 @@ class Test_Manifest_Files(object):
             assert False
         except IOError:
             assert True
+
+    def test_missing_files(self):
+        try:
+            m = manifest.Manifest(os.path.join(self.manifests_path,'missing_files.yml'))
+            assert False
+        except KeyError:
+            assert True
+
+    def test_missing_content(self):
+        try:
+            m = manifest.Manifest(os.path.join(self.manifests_path,'missing_state_content.yml'))
+            assert False
+        except ValueError:
+            assert True

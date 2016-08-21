@@ -76,6 +76,11 @@ class State(object):
 
     def __init__(self, path, name, values):
         self.name = name
+
+        if not values:
+            logger.error('State {} missing content'.format(name))
+            raise ValueError
+
         try:
             self.file_list = values.pop('files')
             logger.info('\n\033[4m'+"Checking state integrity ({}):".format(self.name)+'\033[0m')
