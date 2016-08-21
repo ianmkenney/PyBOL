@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = 0.1.0
+version = '0.1.0'
 
 setup(name="Manifest",
       version=version,
@@ -9,7 +9,7 @@ setup(name="Manifest",
       author_email="ian.kenney@asu.edu",
       packages=find_packages(),
       install_requires = ['pyyaml',
-      ]
+      ],
       tests_require = ['pytest'],
       zip_safe = True,
 )
