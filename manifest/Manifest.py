@@ -108,7 +108,6 @@ class State(object):
         dest -- destination path. 
         """
         for f in self.file_list:
-            print(f)
             src_path_f = os.path.join(src_path, self.name, f[0])
             dest_f = os.path.join(dest, f[1])
             logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
@@ -117,9 +116,12 @@ class State(object):
                 os.makedirs(os.path.dirname(dest_f))
             
             if os.path.isdir(src_path_f):
+                if os.path.exists(dest_f):
+                    shutil.rmtree(dest_f)
                 shutil.copytree(src_path_f,dest_f)
             else:
                 shutil.copyfile(src_path_f, dest_f)
+
         logger.info("{0} build complete...".format(self.name))
 
     def _format_integrity(self, exists):

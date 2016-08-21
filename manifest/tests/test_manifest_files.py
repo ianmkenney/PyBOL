@@ -54,6 +54,3 @@ class Test_Manifest_Files(object):
             m.assemble('state_b',self.dir)
         except:
             assert False
-
-    def _check_same(self, dir1, dir2):
-        raise NotImplementedError
