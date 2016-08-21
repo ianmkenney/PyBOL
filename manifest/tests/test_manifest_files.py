@@ -39,3 +39,10 @@ class Test_Manifest_Files(object):
             assert False
         except ValueError:
             assert True
+
+    def test_recursion(self):
+        try:
+            m = manifest.Manifest(os.path.join(self.manifests_path,'recursion.yml'))
+            m.assemble('recursion',self.dir)
+        except:
+            assert False

@@ -83,12 +83,13 @@ class State(object):
 
         try:
             self.file_list = values.pop('files')
-            logger.info('\n\033[4m'+"Checking state integrity ({}):".format(self.name)+'\033[0m')
+            logger.info('\033[4m'+"Checking state integrity ({}):".format(self.name)+'\033[0m')
             broken = False
 
             for f in self.file_list:
                 exists = os.path.exists(os.path.join(path, name, f[0]))
                 if not exists:
+                    logger.warning('{} does not exist'.format(os.path.join(path, name, f[0])))
                     broken = True
                 logger.info("   {1:17} <-- {0}".format(f[0], self._format_integrity(exists)))
         except KeyError:
@@ -106,13 +107,19 @@ class State(object):
         src_path -- path containing all of the states.
         dest -- destination path. 
         """
-
         for f in self.file_list:
+            print(f)
             src_path_f = os.path.join(src_path, self.name, f[0])
             dest_f = os.path.join(dest, f[1])
+            logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
             if not os.path.exists(os.path.dirname(dest_f)):
+                logger.info("Creating directory tree")
                 os.makedirs(os.path.dirname(dest_f))
-            shutil.copyfile(src_path_f, dest_f)
+            
+            if os.path.isdir(src_path_f):
+                shutil.copytree(src_path_f,dest_f)
+            else:
+                shutil.copyfile(src_path_f, dest_f)
         logger.info("{0} build complete...".format(self.name))
 
     def _format_integrity(self, exists):

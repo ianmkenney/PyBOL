@@ -1,4 +1,4 @@
-path: testing_files/testing_states
+path: manifest/tests/testing_files/testing_states
 
 state_a:
     files:
