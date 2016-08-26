@@ -13,7 +13,8 @@ class Manifest(object):
     manifest file; see example.
     """
 
-    states = {}
+    _states = {}
+    _path = ''
     
     def __init__(self, filename=None):
         if filename:
@@ -21,7 +22,7 @@ class Manifest(object):
                 logger.info('Loading manifest file \'{}\''.format(filename))
                 with open(filename, 'r') as f:
                     raw = yaml.load(f)
-                    self._path = raw.pop('path')
+                    self.path = raw.pop('path')
                 logger.info('Loaded manifest file')
             except IOError as e:
                 logger.error('Could not open file \'{}\''.format(filename))
@@ -32,6 +33,8 @@ class Manifest(object):
             logger.info('Building states')
             self._build_states(raw)
             logger.info('States built')
+        else:
+            logger.info('Creating empty manifest')
     
     @property
     def path(self):
@@ -39,7 +42,41 @@ class Manifest(object):
 
     @path.setter
     def path(self, path):
+        if not os.path.exists(path):
+            logger.warning('Path \'{}\' does not exist'.format(path))
         self._path = path
+
+    @property
+    def states(self):
+        return self._states
+
+    @states.setter
+    def states(self, states):
+        if isinstance(states, dict):
+            if len(states):
+                for s in states:
+                    if not isinstance(states[s], State):
+                        logger.error('State dict can only contain state objects')
+                        raise TypeError('State dict can only contain state objects')
+                self._states = states
+            else:
+                self._states = {}
+        else:
+            logger.error('state attribute must be specified in a dict')
+            raise TypeError('States must be held in a dict')
+
+    def add_state(self, name, files=[], force=False):
+        if not name in self._states or force:
+            self._states[name] = State(name, files=files)
+        else:
+            logger.error('State {} already exists'.format(name))
+
+    def remove_state(self, name):
+        try:
+            logger.info('Removing state:', name)
+            self._states.pop(name)
+        except KeyError:
+            logger.error('No state', name)
 
     def assemble(self, state, dest):
         """Builds the specified state.
@@ -49,7 +86,7 @@ class Manifest(object):
         dest -- destination path.
         """
         logger.info('Assembling state \'{}\''.format(state))
-        self.states[state].assemble(self._path, dest)
+        self.states[state].assemble(self.path, dest)
         logger.info('Assembled state \'{}\''.format(state))
 
     def _build_states(self, data):
@@ -60,45 +97,50 @@ class Manifest(object):
         data -- dictionary containing all of the state information.
         """
         for key in data:
-            self.states[key] = State(self._path, key, data[key])
+            try:
+                self.add_state(key, files=data[key]['files'])
+            except TypeError:
+                logger.error('Missing file list in state {}'.format(key))
+                raise
 
-    def _check_broken_manifest(self):
-        self.broken = False
-        for state in self.states:
-            if self.states[state].broken:
-                self.broken = True
-                logger.warning('State {} is broken.'.format(state))
-        if self.broken:
-            raise Exception
+    def __len__(self):
+        return len(self.states)
                 
                                                 
 class State(object):
 
-    def __init__(self, path, name, values):
-        self.name = name
+    _files = []
+    _name = ''
 
-        if not values:
-            logger.error('State {} missing content'.format(name))
+    def __init__(self, name, files=[], full_transfer=False):
+        self.name = name
+        self._files = files
+        self._full_transfer = full_transfer
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str):
+            logger.info('Setting state name to {}'.format(name))
+            self._name = name
+        else:
+            logger.error('Could not set state name. Must be a string')
             raise ValueError
 
-        try:
-            self.file_list = values.pop('files')
-            logger.info('\033[4m'+"Checking state integrity ({}):".format(self.name)+'\033[0m')
-            broken = False
+    @property
+    def files(self):
+        return self._files
 
-            for f in self.file_list:
-                exists = os.path.exists(os.path.join(path, name, f[0]))
-                if not exists:
-                    logger.warning('{} does not exist'.format(os.path.join(path, name, f[0])))
-                    broken = True
-                logger.info("   {1:17} <-- {0}".format(f[0], self._format_integrity(exists)))
-        except KeyError:
-            logger.error(name, 'missing file list.')
-            raise
+    @files.setter
+    def files(self, files):
+        self._files = files
 
-        self.broken = broken
+    def clear_files(self):
+        del self.files[:]
 
-        
     def assemble(self, src_path, dest):
         """Builds a state according to the information provided in the
         manifest file.
@@ -107,7 +149,7 @@ class State(object):
         src_path -- path containing all of the states.
         dest -- destination path. 
         """
-        for f in self.file_list:
+        for f in self.files:
             src_path_f = os.path.join(src_path, self.name, f[0])
             dest_f = os.path.join(dest, f[1])
             logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
@@ -124,10 +166,8 @@ class State(object):
 
         logger.info("{0} build complete...".format(self.name))
 
-    def _format_integrity(self, exists):
-        
-        message = {True  : '\033[92mFound\033[0m',
-                   False : '\033[91mMissing\033[0m',
-        }
+    def __str__(self):
+        return "{0} -- {1}".format(self.name, self.files)
 
-        return message[exists]
+    def __len__(self):
+        return len(self.files)
