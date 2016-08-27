@@ -64,6 +64,6 @@ class Test_Manifest_Files(object):
         try:
             m = manifest.Manifest(filename=os.path.join(self.manifests_path,'full_transfer.yml'))
             m.assemble('state_a',self.dir)
-            assert os.listdir(self.dir) > 0
+            assert len(os.listdir(self.dir)) > 0
         except: 
             assert False
