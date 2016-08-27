@@ -64,9 +64,10 @@ class Manifest(object):
             logger.error('state attribute must be specified in a dict')
             raise TypeError('States must be held in a dict')
 
-    def add_state(self, name, files=[], force=False):
+    def add_state(self, name, files=[], force=False, options=[]):
+
         if not name in self._states or force:
-            self._states[name] = State(name, files=files)
+            self._states[name] = State(name, files=files, options=options)
         else:
             logger.error('State {} already exists'.format(name))
 
@@ -84,7 +85,7 @@ class Manifest(object):
         state -- a state from the manifest file.
         dest -- destination path.
         """
-        logger.info('Assembling state \'{}\''.format(state))
+        logger.info('Assembling state \'{0}\' in \'{1}\''.format(state,dest))
         self.states[state].assemble(self.path, dest)
         logger.info('Assembled state \'{}\''.format(state))
 
@@ -97,7 +98,12 @@ class Manifest(object):
         """
         for key in data:
             try:
-                self.add_state(key, files=data[key]['files'])
+                options = data[key]['options']
+            except KeyError:
+                options = []
+
+            try:
+                self.add_state(key, files=data[key]['files'], options=options)
             except TypeError:
                 logger.error('Missing file list in state {}'.format(key))
                 raise
@@ -111,10 +117,25 @@ class State(object):
     _files = []
     _name = ''
 
-    def __init__(self, name, files=[], full_transfer=False):
+    def __init__(self, name, files=[], full_transfer=False, options=[]):
         self.name = name
         self._files = files
         self._full_transfer = full_transfer
+        self._options = options
+
+        self._option_dict = {full_transfer: False}
+
+        if len(self._options) > 0:
+            try:
+                for o in self._options:
+                    current_option = o
+                    self._option_dict[o] = True
+            except KeyError:
+                logger.error('Unknown option: {}'.format(current_option))
+                raise
+
+            logger.info('Options are applied at assembly')
+        
 
     @property
     def name(self):
@@ -148,9 +169,18 @@ class State(object):
         src_path -- path containing all of the states.
         dest -- destination path. 
         """
+        
+        dirname = os.path.join(src_path, self.name)
+
+        if len(self._options) > 0:
+            if self._option_dict['full_transfer']:
+                logger.info('Applying full transfer option to state {}'.format(self.name))
+                self.files = os.dirlist(dirname)
+    
         for f in self.files:
-            src_path_f = os.path.join(src_path, self.name, f[0])
+            src_path_f = os.path.join(dirname, f[0])
             dest_f = os.path.join(dest, f[1])
+            print(src_path_f,dest_f)
             logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
             if not os.path.exists(os.path.dirname(dest_f)):
                 logger.info("Creating directory tree")
