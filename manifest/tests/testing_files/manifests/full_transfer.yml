@@ -1,0 +1,9 @@
+path: manifest/tests/testing_files/testing_states
+
+state_a:
+    options:
+        - full_transfer
+    files:
+        - []
+    
+
