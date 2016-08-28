@@ -176,12 +176,11 @@ class State(object):
         if len(self._options) > 0:
             if self._option_dict['full_transfer']:
                 logger.info('Applying full transfer option to state {}'.format(self.name))
-                self.files = os.dirlist(dirname)
+                self.files = os.listdir(dirname)
     
         for f in self.files:
             src_path_f = os.path.join(dirname, f[0])
             dest_f = os.path.join(dest, f[1])
-            print(src_path_f,dest_f)
             logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
             if not os.path.exists(os.path.dirname(dest_f)):
                 logger.info("Creating directory tree")
