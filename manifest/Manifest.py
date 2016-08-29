@@ -13,10 +13,9 @@ class Manifest(object):
     manifest file; see example.
     """
 
-    _states = {}
-    _path = ''
-    
     def __init__(self, filename=None):
+        self._states = {}
+        self._path = ''
         if filename:
             try:
                 logger.info('Loading manifest file \'{}\''.format(filename))
