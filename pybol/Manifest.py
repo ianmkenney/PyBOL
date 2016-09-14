@@ -5,8 +5,8 @@ import shutil
 import logging 
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("manifest")
-logger.info("Starting manifest logging")
+logger = logging.getLogger("PyBOL")
+logger.info("Starting PyBOL logging")
 
 class Manifest(object):
     """Tool for managing a multistate workflow. Requires a properly formatted
