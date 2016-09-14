@@ -1,5 +1,5 @@
 ===========================
-README for Manifest Parser 
+README for PyBOL 
 ===========================
 
 |build| |cov|

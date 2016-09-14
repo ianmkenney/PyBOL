@@ -1,7 +1,6 @@
-path: testing_files/testing_states
+path: pybol/test/testing_files/testing_states
 
 state_a:
-    options:
     
 state_b:
     files:
