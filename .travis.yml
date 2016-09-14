@@ -36,7 +36,7 @@ install:
     - pip install -e .
 
 script:
-    - py.test --cov manifest manifest/tests
+    - py.test --cov manifest pybol/tests
 
 after_success:
     - codecov
