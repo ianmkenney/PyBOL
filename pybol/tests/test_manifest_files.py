@@ -6,7 +6,7 @@ class Test_Manifest_Files(object):
     
     def setup(self):
         self.dir = tempfile.mkdtemp()
-        self.manifests_path = 'manifest/tests/testing_files/manifests'
+        self.manifests_path = 'pybol/tests/testing_files/manifests'
 
     def test_good_yaml(self):
         m = pybol.Manifest(filename=os.path.join(self.manifests_path,'good_manifest.yml'))
