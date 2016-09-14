@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 version = '0.2.0'
 
-setup(name="Manifest",
+setup(name="pybol",
       version=version,
       description="A library for assembling predefined states of files and directories",
       author="Ian Kenney",
