@@ -14,7 +14,7 @@ class Test_Manifest_Files(object):
     
     def test_path(self):
         m = pybol.Manifest(filename=os.path.join(self.manifests_path,'good_manifest.yml'))
-        assert m.path == 'manifest/tests/testing_files/testing_states'
+        assert m.path == 'pybol/tests/testing_files/testing_states'
         assert os.path.exists(m.path)
 
     def test_bad_yaml(self):
