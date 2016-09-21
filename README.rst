@@ -4,10 +4,10 @@ README for PyBOL
 
 |build| |cov|
 
-.. |build| image:: https://travis-ci.org/ianmkenney/manifest_parser.svg?branch=master
+.. |build| image:: https://travis-ci.org/ianmkenney/PyBOL.svg?branch=master
     :alt: Build status
-    :target: https://travis-ci.org/ianmkenney/manifest_parser
+    :target: https://travis-ci.org/ianmkenney/PyBOL
 
-.. |cov| image:: https://codecov.io/gh/ianmkenney/manifest_parser/branch/master/graph/badge.svg
+.. |cov| image:: https://codecov.io/gh/ianmkenney/PyBOL/branch/master/graph/badge.svg
     :alt: Coverage status
-    :target: https://codecov.io/gh/ianmkenney/manifest_parser
+    :target: https://codecov.io/gh/ianmkenney/PyBOL
