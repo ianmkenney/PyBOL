@@ -1,3 +1,16 @@
+
+"""
+:mod:`pybol.Manifest` --- Ship states
+====================================
+
+The :mod:`pybol.Manifest` allows streamlined movement of large sets of file structures (states).
+
+.. autoclass:: Manifest
+.. autoclass:: State
+
+"""
+
+
 import sys
 import yaml
 import os
