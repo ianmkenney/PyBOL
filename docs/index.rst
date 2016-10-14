@@ -1,22 +1,23 @@
-.. PyBOL documentation master file, created by
-   sphinx-quickstart on Thu Oct 13 15:37:55 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+PyBOL: Lading Filesystems
+==========================
 
-Welcome to PyBOL's documentation!
-=================================
+|build| |cov|
 
-Contents:
+A lightweight package for managing states of a filesystem. 
+
+
+.. |build| image:: https://travis-ci.org/ianmkenney/PyBOL.svg?branch=master
+    :alt: Build status
+    :target: https://travis-ci.org/ianmkenney/PyBOL
+
+.. |cov| image:: https://codecov.io/gh/ianmkenney/PyBOL/branch/master/graph/badge.svg
+    :alt: Coverage status
+    :target: https://codecov.io/gh/ianmkenney/PyBOL
+
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 1
+    :caption: User Documentation
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+    install
+    api
