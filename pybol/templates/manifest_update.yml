@@ -1,0 +1,10 @@
+path: testing_files/
+
+state_a:
+    files:
+        - [src/data/file_1.csv, ]
+    
+state_b:
+    files:
+        - [src/data/file_2.csv, ]
+

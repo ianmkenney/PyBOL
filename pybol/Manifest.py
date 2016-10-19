@@ -21,41 +21,25 @@ logger = logging.getLogger("PyBOL")
 logger.info("Starting PyBOL logging")
 
 class Manifest(object):
-    """Tool for managing a multistate workflow. Requires a properly formatted
-    manifest file; see example.
+    """Tool for managing a multistate workflow.
+
+    Parameters
+    ----------
+    filename : str (optional)
+        Path to a predefined manifest in YAML format
+
+    Attributes
+    ----------
+    states : dict
+        Dictionary containing state definitions
     """
 
     def __init__(self, filename=None):
         self._states = {}
-        self._path = ''
         if filename:
-            try:
-                logger.info('Loading manifest file \'{}\''.format(filename))
-                with open(filename, 'r') as f:
-                    raw = yaml.load(f)
-                    self.path = raw.pop('path')
-                logger.info('Loaded manifest file')
-            except IOError as e:
-                logger.error('Could not open file \'{}\''.format(filename))
-                raise
-            except KeyError as e:
-                logger.error('No path provided. Check manifest file')
-                raise
-            logger.info('Building states')
-            self._build_states(raw)
-            logger.info('States built')
+            self.load_manifest_file(filename)
         else:
             logger.info('Creating empty manifest')
-    
-    @property
-    def path(self):
-        return self._path
-
-    @path.setter
-    def path(self, path):
-        if not os.path.exists(path):
-            logger.warning('Path \'{}\' does not exist'.format(path))
-        self._path = path
 
     @property
     def states(self):
@@ -76,26 +60,76 @@ class Manifest(object):
             logger.error('state attribute must be specified in a dict')
             raise TypeError('States must be held in a dict')
 
-    def add_state(self, name, files=[], force=False, options=[]):
+    def load_manifest_file(self, filename):
+        """Loads a manifest file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the manifest file
+
+        """
+        try:
+            logger.info('Loading manifest file \'{}\''.format(filename))
+            with open(filename, 'r') as f:
+                raw = yaml.load(f)
+            logger.info('Loaded manifest file')
+        except IOError as e:
+            logger.error('Could not open file \'{}\''.format(filename))
+            raise
+        logger.info('Building states')
+        self._build_states(raw)
+        logger.info('States built')
+
+    def add_state(self, name, path=None, files=[], force=False, options=[]):
+        """Add a state to the manifest.
+
+        Parameters
+        ----------
+        name : str
+            The name of the state to be added
+        files : [str] (optional)
+            The paths of the files defining the state
+        path : str (optional)
+            The path the the top level directory, default behavior determines
+            this value based on the paths of the files provided.
+        force : bool (optional)
+            Add new state even if state name exists
+        options : [str] (optional)
+            Options for the state
+        
+        """
 
         if not name in self._states or force:
-            self._states[name] = State(name, files=files, options=options)
+            self._states[name] = State(name, path=path,files=files, options=options)
         else:
             logger.error('State {} already exists'.format(name))
 
     def remove_state(self, name):
+        """Removes a state from the manifest.
+
+        Parameters
+        ----------
+        name : str
+            The name of the state to be removed
+
+        """
         try:
             logger.info('Removing state:', name)
             self._states.pop(name)
         except KeyError:
-            logger.error('No state', name)
+            logger.error('No state found:', name)
 
     def assemble(self, state, dest):
         """Builds the specified state.
 
-        Keyword arguments:
-        state -- a state from the manifest file.
-        dest -- destination path.
+        Parameters
+        ----------
+        state : str
+            A state name held in the manifest
+        dest : 
+            destination path
+
         """
         logger.info('Assembling state \'{0}\' in \'{1}\''.format(state,dest))
         self.states[state].assemble(self.path, dest)
@@ -105,8 +139,11 @@ class Manifest(object):
         """Iterates through all states in the manifest file and populates the 
         states dictionary.
 
-        Keyword arguments:
-        data -- dictionary containing all of the state information.
+        Parameters
+        ----------
+        data : dict
+            dictionary containing all of the state information.
+
         """
         for key in data:
             try:
@@ -115,10 +152,21 @@ class Manifest(object):
                 options = []
 
             try:
-                self.add_state(key, files=data[key]['files'], options=options)
+                self.add_state(key, files=data[key]['files'], options=options, force=True)
             except TypeError:
                 logger.error('Missing file list in state {}'.format(key))
                 raise
+
+    def dump(self, filename):
+        """Create a manifest file using the current manifest definition
+
+        Parameters
+        ----------
+        filename : str
+            Destination path for the manifest file
+
+        """
+        raise NotImplementedError
 
     def __len__(self):
         return len(self.states)
@@ -126,11 +174,8 @@ class Manifest(object):
                                                 
 class State(object):
 
-    _files = []
-    _name = ''
-
     def __init__(self, name, files=[], full_transfer=False, options=[]):
-        self.name = name
+        self._name = name
         self._files = files
         self._full_transfer = full_transfer
         self._options = options
@@ -180,9 +225,12 @@ class State(object):
         """Builds a state according to the information provided in the
         manifest file.
 
-        Keyword arguments:
-        src_path -- path containing all of the states.
-        dest -- destination path. 
+        Parameters
+        ----------
+        src_path : str 
+            path containing all of the states
+        dest : str
+            destination path
 
         """
         
