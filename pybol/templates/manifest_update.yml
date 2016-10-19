@@ -1,10 +1,10 @@
-path: testing_files/
-
 state_a:
+    path: /home/some_user/testing_files/
     files:
         - [src/data/file_1.csv, ]
     
 state_b:
+    path: /home/some_user/testing_files/
     files:
         - [src/data/file_2.csv, ]
 

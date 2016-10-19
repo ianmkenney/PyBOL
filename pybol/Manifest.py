@@ -120,6 +120,12 @@ class Manifest(object):
         except KeyError:
             logger.error('No state found:', name)
 
+    def clear_states(self):
+        """Removes all states from the manifest
+
+        """
+        self.states.clear()
+
     def assemble(self, state, dest):
         """Builds the specified state.
 
@@ -174,15 +180,16 @@ class Manifest(object):
                                                 
 class State(object):
 
-    def __init__(self, name, files=[], full_transfer=False, options=[]):
+    def __init__(self, name, files=[], path=None, full_transfer=False, options=[]):
         self._name = name
         self._files = files
+        self._path = path
         self._full_transfer = full_transfer
         self._options = options
 
         self._option_dict = {full_transfer: False}
 
-        if len(self._options) > 0:
+        if self._options:
             try:
                 for o in self._options:
                     current_option = o
@@ -190,9 +197,21 @@ class State(object):
             except KeyError:
                 logger.error('Unknown option: {}'.format(current_option))
                 raise
+        if not path and files:
+            self.determine_path()
 
-            logger.info('Options are applied at assembly')
-        
+    @property
+    def path(self):
+        return self._path
+
+    @path.setter
+    def path(self, new_path):
+        if isinstance(new_path, str):
+            logger.info('Setting state path to {}'.format(new_path))
+            self._path = new_path
+        else:
+            logger.error('Could not set state path. Must be a string')
+            raise ValueError
 
     @property
     def name(self):
@@ -215,6 +234,9 @@ class State(object):
     def files(self, files):
         self._files = files
 
+    def determine_path(self):
+        self.path = os.path.commonprefix([f[0] for f in files])
+
     def clear_files(self):
         """Clears the files held in the state
 
@@ -222,8 +244,7 @@ class State(object):
         del self.files[:]
 
     def assemble(self, src_path, dest):
-        """Builds a state according to the information provided in the
-        manifest file.
+        """Builds a state based on its definition.
 
         Parameters
         ----------
