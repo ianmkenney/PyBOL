@@ -171,6 +171,9 @@ class State(object):
         self._files = files
 
     def clear_files(self):
+        """Clears the files held in the state
+
+        """
         del self.files[:]
 
     def assemble(self, src_path, dest):
@@ -180,6 +183,7 @@ class State(object):
         Keyword arguments:
         src_path -- path containing all of the states.
         dest -- destination path. 
+
         """
         
         dirname = os.path.join(src_path, self.name)
