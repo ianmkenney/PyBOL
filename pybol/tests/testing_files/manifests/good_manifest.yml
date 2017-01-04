@@ -1,10 +1,12 @@
 path: pybol/tests/testing_files/testing_states
 
 state_a:
+    path: src/data/
     files:
-        - [src/data/file_1.csv, data/file_1.csv]
+        - [file_1.csv, file_1.csv]
     
 state_b:
+    path: src/data/
     files:
-        - [src/data/file_2.csv, data/file_2.csv]
+        - [file_2.csv, file_2.csv]
 

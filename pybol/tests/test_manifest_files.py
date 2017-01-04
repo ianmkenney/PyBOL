@@ -59,11 +59,3 @@ class Test_Manifest_Files(object):
             m.assemble('state_b',self.dir)
         except:
             assert False
-
-    def test_full_transfer_option(self):
-        try:
-            m = pybol.Manifest(filename=os.path.join(self.manifests_path,'full_transfer.yml'))
-            m.assemble('state_a',self.dir)
-            assert len(os.listdir(self.dir)) > 0
-        except: 
-            assert False

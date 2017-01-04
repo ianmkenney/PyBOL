@@ -81,7 +81,7 @@ class Manifest(object):
         self._build_states(raw)
         logger.info('States built')
 
-    def add_state(self, name, path=None, files=[], force=False, options=[]):
+    def add_state(self, name, path=None, files=[], force=False):
         """Add a state to the manifest.
 
         Parameters
@@ -95,13 +95,11 @@ class Manifest(object):
             this value based on the paths of the files provided.
         force : bool (optional)
             Add new state even if state name exists
-        options : [str] (optional)
-            Options for the state
         
         """
-
         if not name in self._states or force:
-            self._states[name] = State(name, path=path,files=files, options=options)
+            self._states[name] = State(name, path=path, files=files)
+            logger.info('State \'{}\' added'.format(name))
         else:
             logger.error('State {} already exists'.format(name))
 
@@ -151,16 +149,23 @@ class Manifest(object):
             dictionary containing all of the state information.
 
         """
+
+        try:
+            logger.info('Looking for path information.')
+            self.path = data.pop('path')
+            logger.info('Setting manifest path to \'{}\''.format(self.path))
+        except Exception as e:
+            raise e
+            
         for key in data:
             try:
-                options = data[key]['options']
-            except KeyError:
-                options = []
-
-            try:
-                self.add_state(key, files=data[key]['files'], options=options, force=True)
+                try:
+                    state_path = data[key].pop('path')
+                except:
+                    state_path = ''
+                self.add_state(key, files=data[key]['files'], path=os.path.join(self.path, key, state_path), force=True)
             except TypeError:
-                logger.error('Missing file list in state {}'.format(key))
+                logger.error('Missing file list in state \'{}\''.format(key))
                 raise
 
     def dump(self, filename):
@@ -180,23 +185,13 @@ class Manifest(object):
                                                 
 class State(object):
 
-    def __init__(self, name, files=[], path=None, full_transfer=False, options=[]):
+    def __init__(self, name, files=[], path=None, full_transfer=False):
         self._name = name
         self._files = files
         self._path = path
         self._full_transfer = full_transfer
-        self._options = options
 
-        self._option_dict = {full_transfer: False}
 
-        if self._options:
-            try:
-                for o in self._options:
-                    current_option = o
-                    self._option_dict[o] = True
-            except KeyError:
-                logger.error('Unknown option: {}'.format(current_option))
-                raise
         if not path and files:
             self.determine_path()
 
@@ -235,7 +230,7 @@ class State(object):
         self._files = files
 
     def determine_path(self):
-        self.path = os.path.commonprefix([f[0] for f in files])
+        self.path = os.path.commonprefix([f[0] for f in self.files])
 
     def clear_files(self):
         """Clears the files held in the state
@@ -255,16 +250,8 @@ class State(object):
 
         """
         
-        dirname = os.path.join(src_path, self.name)
-
-        if len(self._options) > 0:
-            if self._option_dict['full_transfer']:
-                logger.info('Applying full transfer option to state {}'.format(self.name))
-                self.files = os.listdir(dirname)
-                self.files = [[x,x] for x in self.files] 
-    
         for f in self.files:
-            src_path_f = os.path.join(dirname, f[0])
+            src_path_f = os.path.join(self.path, f[0])
             dest_f = os.path.join(dest, f[1])
             logger.info("Copying from {0} --> {1}".format(src_path_f,dest_f))
             if not os.path.exists(os.path.dirname(dest_f)):
