@@ -32,7 +32,7 @@ class Manifest(object):
             try:
                 logger.info('Loading manifest file \'{}\''.format(filename))
                 with open(filename, 'r') as f:
-                    raw = yaml.load(f)
+                    raw = yaml.safe_load(f)
                     self.path = raw.pop('path')
                 logger.info('Loaded manifest file')
             except IOError as e:
